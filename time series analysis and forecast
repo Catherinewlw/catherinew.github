@@ -1,0 +1,81 @@
+> startDate = as.Date(“2008-12-01”)
+> endDate = as.Date(“2018-11-30”)
+> getSymbols(“COST”, from = startDate, to = endDate)
+> rCOST <- dailyReturn(COST)
+> plot.ts(rCOST)
+> plot(rCOST)
+> library(quantmod)
+> library(rugarch)
+> ug_spec = ugarchspec()
+> ug_spec
+
+> rcost1 <- ugarchspec(variance.model =  list(model="sGARCH",garchOrder=c(1,1)),mean.model=list(armaOrder=c(1,0)),distribution.model="norm")
+> rcostGarch1 <- ugarchfit(spec = rcost0, data = rCOST)
+> rcostGarch1
+
+> rcost2 <- ugarchspec(variance.model = list(model="sGARCH",garchOrder=c(1,1)),mean.model=list(armaOrder=c(0,1)),distribution.model="norm")
+> rcostGarch2 <- ugarchfit(spec = rcost2, data = rCOST)
+> rcostGarch2
+
+> rcost3 <- ugarchspec(variance.model = list(model="sGARCH",garchOrder=c(1,1)),mean.model=list(armaOrder=c(1,1)),distribution.model="norm")
+> rcostGarch3 <- ugarchfit(spec = rcost3, data = rCOST)
+> rcostGarch3
+
+> rcost4 <- ugarchspec(variance.model = list(model="sGARCH",garchOrder=c(1,1)),mean.model=list(armaOrder=c(1,2)),distribution.model="norm")
+> rcostGarch4 <- ugarchfit(spec = rcost4, data = rCOST)
+> rcostGarch4
+
+> rcost5 <- ugarchspec(variance.model = list(model="sGARCH",garchOrder=c(1,1)),mean.model=list(armaOrder=c(2,1)),distribution.model="norm")
+> rcostGarch5 <- ugarchfit(spec = rcost5, data = rCOST)
+> rcostGarch5
+
+> rcost6 <- ugarchspec(variance.model = list(model="sGARCH",garchOrder=c(1,1)),mean.model=list(armaOrder=c(2,2)),distribution.model="norm")
+> rcostGarch6 <- ugarchfit(spec = rcost6, data = rCOST)
+> rcostGarch6
+
+> rcostPredict1<-ugarchboot(rcostGarch1, n.ahead=20, method=c("Partial", "Full")[1])
+> rcostPredict1
+> plot(rcostPredict1)
+Make a plot selection (or 0 to exit): 
+1:   Parameter Density Plots
+2:   Series Standard Error Plots
+3:   Sigma  Standard Error Plots
+Selection: 2
+
+> rcostPredict2<-ugarchboot(rcostGarch2, n.ahead=20, method=c("Partial", "Full")[1])
+> rcostPredict2
+> plot(rcostPredict2)
+Make a plot selection (or 0 to exit): 
+1:   Parameter Density Plots
+2:   Series Standard Error Plots
+3:   Sigma  Standard Error Plots
+Selection: 2
+
+
+> ugfit=ugarchfit(spec = ug_spec,data=rCOST)
+> ugfit
+
+> paste("Elements in the @model slot")
+> names(ugfit@model)
+> paste("Elements in the @fit slot")
+> names(ugfit@fit)
+
+> ugfit@fit$coef
+> ug_var <- ugfit@fit$var   # save the estimated conditional variances
+> ug_res2 <- (ugfit@fit$residuals)^2   # save the estimated squared residuals
+> plot(ug_res2, type = "l")
+
+> lines(ug_var, col = "green")
+> ugfore <- ugarchforecast(ugfit, n.ahead = 20)
+> ug_f <- ugfore@forecast$sigmaFor
+> plot(ug_f, type = "l")
+
+> ug_var_t <- c(tail(ug_var,20),rep(NA,10))  # gets the last 20 observations
+> ug_res2_t <- c(tail(ug_res2,20),rep(NA,10))  # gets the last 20 observations
+> ug_f <- c(rep(NA,20),(ug_f)^2)
+
+> plot(ug_res2_t, type = "l")
+> lines(ug_f, col = "orange")
+> lines(ug_var_t, col = "green")
+> ugfore
+
